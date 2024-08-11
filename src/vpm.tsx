@@ -45,7 +45,7 @@ export default function PageVpm() {
             </Text>
             <Stack direction={'row'}>
               <Link
-                href={`vcc://vpm/addRepo?url=${process.env.PUBLIC_URL + '/vpm/vpm.json'}`}
+                href={`vcc://vpm/addRepo?url=${new URL('./vpm.json', document.baseURI).href}`}
               >
                 <Button
                   colorScheme={'purple'}

@@ -14,6 +14,8 @@ const router = createBrowserRouter([
     path: "/vpm",
     element: <PageVpm />,
   }
-]);
+], {
+  basename: process.env.PUBLIC_URL
+});
 
 export default router

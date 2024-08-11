@@ -15,7 +15,9 @@ root.render(
       <Helmet>
         <style>{'body { background-color: black; }'}</style>
       </Helmet>
-      <RouterProvider router={router} />
+      <RouterProvider
+        router={router}
+      />
     </ChakraProvider>
   </React.StrictMode>
 );
