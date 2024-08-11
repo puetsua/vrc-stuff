@@ -1,15 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { RouterProvider } from 'react-router-dom'
+import reportWebVitals from './reportWebVitals'
+import { ChakraProvider } from '@chakra-ui/react'
+import router from './router'
+import Helmet from 'react-helmet'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <ChakraProvider>
+      <Helmet>
+        <style>{'body { background-color: black; }'}</style>
+      </Helmet>
+      <RouterProvider router={router} />
+    </ChakraProvider>
   </React.StrictMode>
 );
 
