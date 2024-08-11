@@ -1,0 +1,26 @@
+{
+  "name": "Puetsua's VPM",
+  "id": "vrchat.puetsuaworkshop",
+  "url": "https://vrchat.puetsua.net/vpm/index.json",
+  "author": "puetsua@puetsua.net",
+  "packages": {
+    "vrchat.puetsuaworkshop.buttonwizard": {
+      "versions": {
+        "0.5.0": {
+          "displayName": "VRChat Button Wizard",
+          "description": "A simple toggle creator.",
+          "legacyFolders": {
+            "Assets\\PuetsuaWorkshop\\VRCButtonWizard": "7b90b926c73474b45a40da4840c494da"
+          },
+          "dependencies": {
+            "com.unity.nuget.newtonsoft-json": "2.0.0"
+          },
+          "vpmDependencies": {
+            "com.vrchat.avatars": ">=3.1.0 <4.0.0"
+          },
+          "url": "https://github.com/puetsua/VRCButtonWizard/releases/download/0.5.0/VRCButtonWizard-0.5.0.zip"
+        }
+      }
+    }
+  }
+}
