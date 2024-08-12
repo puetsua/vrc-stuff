@@ -1,0 +1,50 @@
+{
+  "name": "Puetsua's VPM",
+  "id": "vrchat.puetsuaworkshop.vpmtest",
+  "url": "https://vrchat.puetsua.net/vpm/vpm_test.json",
+  "author": "Puetsua",
+  "packages": {
+    "net.kwxxw.vrc-hand-menu": {
+      "versions": {
+        "1.3.6": {
+          "name": "net.kwxxw.vrc-hand-menu",
+          "displayName": "VRCHandMenu",
+          "version": "1.3.6",
+          "unity": "2022.3",
+          "description": "Hand menu.",
+          "vpmDependencies": {
+            "com.vrchat.worlds": ">=3.6.0"
+          },
+          "author": {
+            "name": "kwxxw",
+            "url": "https://yamadev.booth.pm"
+          },
+          "zipSHA256": "c2bf3f48fc97bdc970ab0d32b8da896693e92a4657c65a400840f444afe7fa81",
+          "url": "https://github.com/koorimizuw/VRCHandMenu/releases/download/1.3.6/net.kwxxw.vrc-hand-menu-1.3.6.zip",
+          "legacyFolders": {
+            "Assets\\Yamadev\\VRCHandMenu": "65a0e18eb18223441b7ef012c99e7b56"
+          }
+        },
+        "1.3.5": {
+          "name": "net.kwxxw.vrc-hand-menu",
+          "displayName": "VRCHandMenu",
+          "version": "1.3.5",
+          "unity": "2022.3",
+          "description": "Hand menu.",
+          "vpmDependencies": {
+            "com.vrchat.worlds": ">=3.6.0"
+          },
+          "author": {
+            "name": "kwxxw",
+            "url": "https://yamadev.booth.pm"
+          },
+          "zipSHA256": "2c0c801ae9f31e40f9a6c0dba639b9d5724bd4d1289f4b1df52b0ad17b27327c",
+          "url": "https://github.com/koorimizuw/VRCHandMenu/releases/download/1.3.5/net.kwxxw.vrc-hand-menu-1.3.5.zip",
+          "legacyFolders": {
+            "Assets\\Yamadev\\VRCHandMenu": "65a0e18eb18223441b7ef012c99e7b56"
+          }
+        }
+      }
+    }
+  }
+}
