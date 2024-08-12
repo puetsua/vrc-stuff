@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import background from './background.png'
 
-function Content() {
+function PageMain() {
   return (
     <Flex
       w={'full'}
@@ -25,50 +25,57 @@ function Content() {
         px={useBreakpointValue({ base: 4, md: 8 })}
         bgGradient={'linear(to-r, blackAlpha.600, blackAlpha.400)'}>
         <Stack maxW={'2xl'} align={'flex-start'} spacing={6}>
-          <Text
-            color={'white'}
-            fontWeight={700}
-            lineHeight={1.2}
-            fontSize={useBreakpointValue({ base: '3xl', md: '4xl' })}>
-            Puetsua's VRChat stuff
-          </Text>
-          <Stack direction={'row'}>
-            <Link
-              href={'https://puetsua.booth.pm'}
-              isExternal
-            >
-              <Button
-                colorScheme={'purple'}
-                variant='solid'
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 0.5,
+              ease: 'easeOut',
+              delay: 0.2
+            }}
+          >
+            <Text
+              color={'white'}
+              fontWeight={700}
+              lineHeight={1.2}
+              fontSize={useBreakpointValue({ base: '3xl', md: '4xl' })}>
+              Puetsua's VRChat stuff
+            </Text>
+          </m.div>
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 0.5,
+              ease: 'easeOut',
+              delay: 0.4
+            }}
+          >
+            <Stack direction={'row'}>
+              <Link
+                href={'https://puetsua.booth.pm'}
+                isExternal
               >
-                Booth.pm
-              </Button>
-            </Link>
-            <Link href='/vpm'>
-              <Button
-                colorScheme={'purple'}
-                variant='solid'
-              >
-                VPM Repository
-              </Button>
-            </Link>
-          </Stack>
+                <Button
+                  colorScheme={'purple'}
+                  variant='solid'
+                >
+                  Booth.pm
+                </Button>
+              </Link>
+              <Link href='/vpm'>
+                <Button
+                  colorScheme={'purple'}
+                  variant='solid'
+                >
+                  VPM Repository
+                </Button>
+              </Link>
+            </Stack>
+          </m.div>
         </Stack>
       </VStack>
     </Flex>
-  )
-}
-
-function PageMain() {
-  return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-    >
-      <Content />
-    </m.div>
   )
 }
 
