@@ -10,9 +10,6 @@
           "name": "vrchat.puetsuaworkshop.buttonwizard",
           "displayName": "VRChat Button Wizard",
           "description": "A simple toggle creator.",
-          "legacyFolders": {
-            "Assets\\PuetsuaWorkshop\\VRCButtonWizard": "7b90b926c73474b45a40da4840c494da"
-          },
           "dependencies": {
             "com.unity.nuget.newtonsoft-json": "2.0.0"
           },
