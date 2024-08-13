@@ -7,19 +7,15 @@
     "vrchat.puetsuaworkshop.buttonwizard": {
       "versions": {
         "0.5.0": {
+          "version": "0.5.0",
           "name": "vrchat.puetsuaworkshop.buttonwizard",
           "displayName": "VRChat Button Wizard",
           "description": "A simple toggle creator.",
           "dependencies": {
             "com.unity.nuget.newtonsoft-json": "2.0.0"
           },
-          "gitDependencies": {},
           "vpmDependencies": {
             "com.vrchat.avatars": ">=3.1.0 <4.0.0"
-          },
-          "author": {
-            "name": "Puetsua",
-            "url": "https://puetsua.net"
           },
           "url": "https://github.com/puetsua/VRCButtonWizard/releases/download/0.5.0/VRCButtonWizard-0.5.0.zip"
         }
