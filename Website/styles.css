@@ -163,12 +163,13 @@ html, body {
   margin: 0 0 1rem 0;
 }
 
-.version-list {
+.package-version {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0 0 1rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .version-tag {

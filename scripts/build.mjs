@@ -107,9 +107,6 @@ async function main() {
       versions.sort((a, b) => compareVersionsDesc(a.version, b.version));
       const latest = versions[0];
       const repoUrl = githubRepoUrl(pkg.releases[0]);
-      const versionPills = versions
-        .map((v) => `<span class="version-tag">${escapeHtml(v.version)}</span>`)
-        .join('\n          ');
       const repoLink = repoUrl
         ? `        <a class="package-repo-link" href="${escapeHtml(repoUrl)}" rel="noopener noreferrer" target="_blank">View on GitHub &rarr;</a>`
         : '';
@@ -118,9 +115,7 @@ async function main() {
         `        <h2>${escapeHtml(latest.displayName || pkg.name)}</h2>`,
         `        <p class="package-id">${escapeHtml(pkg.name)}</p>`,
         `        <p class="package-description">${escapeHtml(latest.description || '')}</p>`,
-        '        <div class="version-list">',
-        `          ${versionPills}`,
-        '        </div>',
+        `        <p class="package-version">Latest: <span class="version-tag">${escapeHtml(latest.version)}</span></p>`,
         repoLink,
         '      </article>',
       ]
