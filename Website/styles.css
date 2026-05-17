@@ -86,3 +86,117 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+
+/* ─── Listing page (Website/vpm/) ─────────────────────────────── */
+
+.listing-header {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 2rem auto;
+}
+
+.listing-header h1 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+
+.listing-header p {
+  color: var(--text-muted);
+  margin: 0 0 1rem 0;
+}
+
+.listing-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem 2rem;
+}
+
+.back-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.add-vcc-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 2rem 0;
+  flex-wrap: wrap;
+}
+
+.add-vcc-row .vpm-url {
+  flex: 1;
+  min-width: 16rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.package-card {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.package-card h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.package-id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem 0;
+}
+
+.package-description {
+  margin: 0 0 1rem 0;
+}
+
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.75rem;
+}
+
+.version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.version-tag {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.version-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.version-link:hover { text-decoration: underline; }
+
+footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
