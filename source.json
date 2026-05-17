@@ -1,0 +1,19 @@
+{
+  "name": "Puetsua's VPM",
+  "id": "vrchat.puetsuaworkshop",
+  "url": "https://vrchat.puetsua.net/vpm/vpm.json",
+  "author": {
+    "name": "Puetsua",
+    "url": "https://puetsua.booth.pm"
+  },
+  "description": "VRChat packages by Puetsua",
+  "packages": [
+    {
+      "name": "vrchat.puetsuaworkshop.buttonwizard",
+      "releases": [
+        "https://github.com/puetsua/VRCButtonWizard/releases/download/0.5.1/VRCButtonWizard-0.5.1.zip",
+        "https://github.com/puetsua/VRCButtonWizard/releases/download/0.5.0/VRCButtonWizard-0.5.0.zip"
+      ]
+    }
+  ]
+}
