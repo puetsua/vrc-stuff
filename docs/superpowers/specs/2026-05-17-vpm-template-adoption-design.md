@@ -1,38 +1,39 @@
-# Adopt LastationVRChat/VPM automation pattern
+# Replace React frontend with static site + automated VPM manifest
 
 **Date:** 2026-05-17
 **Status:** Approved
 
 ## Background
 
-This repo (`vrc-stuff`) hosts the static site at `vrchat.puetsua.net` and serves a VPM (VRChat Package Manager) repository manifest at `https://vrchat.puetsua.net/vpm/vpm.json`. The manifest is consumed by VCC (VRChat Creator Companion) to distribute Unity packages — currently a single package, `vrchat.puetsuaworkshop.buttonwizard`.
+This repo (`vrc-stuff`) serves the static site at `vrchat.puetsua.net` and a VPM (VRChat Package Manager) repository manifest at `https://vrchat.puetsua.net/vpm/vpm.json`. The manifest is consumed by VCC to distribute Unity packages — currently a single package, `vrchat.puetsuaworkshop.buttonwizard`.
 
-Today the manifest is **hand-maintained**: every time a new release of a package ships, full metadata (`displayName`, `description`, `dependencies`, `vpmDependencies`, release zip URL) is manually copy-pasted into `public/vpm/vpm.json`. The recent commit history (`c7e98d4 Added 0.5.1`, `9ef760d Fixed vpm.json`) shows this is a regular source of friction and error.
+Today's setup has two friction points:
 
-The reference repo [`LastationVRChat/VPM`](https://github.com/LastationVRChat/VPM) uses the official `vrchat-community/package-list-action` pipeline (Nuke + Scriban templates) that takes a short `source.json` listing only release zip URLs, downloads each zip, parses the embedded `package.json`, and generates the full VPM manifest automatically.
+1. **Manifest is hand-maintained.** Each new release requires copying `displayName`, `description`, `dependencies`, `vpmDependencies`, and the zip URL into `public/vpm/vpm.json`. The recent commit history (`c7e98d4 Added 0.5.1`, `9ef760d Fixed vpm.json`) shows this is a regular source of error.
+2. **Frontend toolchain is overbuilt.** A React/Chakra/webpack stack renders two trivial pages: a landing with two buttons (`src/index.tsx`) and an "Add to VCC" deep-link page (`src/vpm.tsx`). The page logic could be plain HTML.
 
-We're adopting the **automation** from that template while keeping the existing React/Chakra UI for `/` and `/vpm`.
+[`LastationVRChat/VPM`](https://github.com/LastationVRChat/VPM) demonstrates a better pattern: a short `source.json` listing only release URLs, and CI that downloads each zip, reads its embedded `package.json`, and generates the manifest. We're adopting that **pattern**, but implementing it with a ~150-line Node script instead of the template's Nuke + Scriban + downloaded C# project. We're also adopting the template's **listing UI** (Fluent UI web components), restyled in purple to match the existing visual identity.
 
 ## Goals
 
-- Replace hand-maintained `public/vpm/vpm.json` with an auto-generated manifest.
-- Preserve the existing public manifest URL `https://vrchat.puetsua.net/vpm/vpm.json` so existing VCC subscribers continue working.
-- Preserve the React landing page (`/`) and "Add to VCC" page (`/vpm`) verbatim.
+- Replace React/Chakra/webpack frontend with two static HTML pages.
+- Replace hand-maintained `vpm.json` with a manifest generated at CI time from `source.json`.
+- Preserve the public URL `https://vrchat.puetsua.net/vpm/vpm.json` so existing VCC subscribers keep working.
+- Preserve visual identity: purple buttons, dark background, the two background images.
 - Move deployment from local `gh-pages -d build` to GitHub Actions.
 
 ## Non-goals
 
-- Replacing the React UI with the template's generated HTML listing page.
-- Removing Chakra, webpack, or any frontend dependency.
-- Auto-creating GitHub releases or running CI on the package source repos.
-- Adding additional packages — `source.json` makes that easy later, but isn't part of this work.
-- Providing a local manifest-generation script (the action is the source of truth; if local preview is needed later, that can be a follow-up).
+- Adopting the `vrchat-community/package-list-action` (Nuke/Scriban) pipeline verbatim — we're reimplementing its core logic in Node for transparency and faster CI.
+- Adding additional packages (`source.json` makes this easy later, but isn't part of this work).
+- Implementing search, filtering, or any UI feature beyond what LastationVRChat's listing shows.
+- Local-runnable dev server for the listing page. The listing is build-time rendered; for portal edits, opening `Website/index.html` in a browser works.
 
 ## Design
 
-### Source of truth: `source.json`
+### Input: `source.json`
 
-New top-level `source.json`. This is the only file that changes when publishing a package version.
+New top-level file. The only file edited when publishing a release.
 
 ```json
 {
@@ -53,72 +54,153 @@ New top-level `source.json`. This is the only file that changes when publishing 
 }
 ```
 
-The `url` field MUST stay pinned to `https://vrchat.puetsua.net/vpm/vpm.json`. That string is how VCC identifies the repo; changing it would invalidate every existing subscriber.
+The `url` field is a hard constraint: it MUST stay pinned to `https://vrchat.puetsua.net/vpm/vpm.json`. Changing it would invalidate every existing VCC subscriber.
 
-### Build pipeline (GitHub Actions)
+### Repository layout
 
-New workflow at `.github/workflows/deploy.yml`. Triggers: push to `main`, plus `workflow_dispatch` for manual rebuilds.
+```
+source.json                          ← input listing
+CNAME                                ← vrchat.puetsua.net
+scripts/
+  build.mjs                          ← reads source.json → writes manifest + listing HTML
+templates/
+  listing.html                       ← HTML template with {{tokens}} the script substitutes
+Website/                             ← deployed root (GitHub Pages serves this dir)
+  index.html                         ← handmade portal page
+  styles.css                         ← shared styles (portal + listing)
+  background.png                     ← portal background
+  vpm/
+    bg2.png                          ← listing background
+    (index.html, vpm.json, index.json — all generated at CI time)
+.github/workflows/
+  deploy.yml                         ← run build.mjs, deploy Website/ to Pages
+docs/superpowers/specs/              ← this spec
+.gitignore                           ← ignores generated files in Website/vpm/
+```
+
+### Portal page (`Website/index.html`)
+
+Handmade static HTML. Visual parity with the current React landing page:
+
+- Full-viewport `background.png` with a dark gradient overlay.
+- Centered headline: "Puetsua's VRChat stuff".
+- Two purple buttons: "Booth.pm" (external link to `https://puetsua.booth.pm`) and "VPM Repository" (`/vpm/`).
+- No JavaScript. Framer Motion fade-in is **dropped** — page load is instant, animation isn't needed.
+
+### Listing page (`Website/vpm/index.html`, generated)
+
+Visual style adopted from `LastationVRChat/VPM`:
+
+- **Framework:** Fluent UI web components, loaded from CDN. No build step for the components themselves — they're custom elements registered by the CDN script.
+- **Theme:** restyled with purple accents (`#805AD5`-ish, matching current Chakra `colorScheme="purple"`) and dark background. CSS custom properties define the palette; we override Fluent's neutral and accent tokens.
+- **Layout:** centered content max-width 1000px, package list with each package's `displayName`, `description`, version selector, and a per-version download link.
+- **"Add to VCC" button** at the top, generating `vcc://vpm/addRepo?url=https://vrchat.puetsua.net/vpm/vpm.json` (same deep-link mechanism as today).
+- **Back button** to `/` (preserves the current `/vpm` → `/` navigation pattern).
+- **Background:** `bg2.png` with dark gradient overlay, matching the portal's visual treatment.
+- Data is **baked in at build time** by `scripts/build.mjs` — no client-side fetch of `vpm.json` for rendering. The deployed HTML is fully self-contained.
+
+### `scripts/build.mjs`
+
+Single ~150-line Node 20 script. **Zero npm dependencies.** Uses Node built-ins (`fetch`, `fs`, `child_process`) and the `unzip` binary (preinstalled on `ubuntu-latest` GitHub runners).
+
+Logic:
+
+1. Read `source.json`.
+2. Initialize manifest skeleton from `source.json`'s top-level fields (name, id, url, author, description).
+3. For each package, for each release URL:
+   - `fetch(url)` → write zip body to a temp file.
+   - Run `unzip -p tempfile package.json` → capture stdout → `JSON.parse`.
+   - Add entry to `manifest.packages[name].versions[version]` with the parsed metadata plus the original release URL.
+4. Write `Website/vpm/vpm.json` and `Website/vpm/index.json` (identical content).
+5. Read `templates/listing.html`. Substitute tokens:
+   - `{{LISTING_NAME}}`, `{{LISTING_DESCRIPTION}}`, `{{LISTING_URL}}`, `{{AUTHOR_NAME}}`, `{{AUTHOR_URL}}` — from `source.json` top-level.
+   - `{{PACKAGE_ROWS}}` — generated HTML for the package list, one section per package, with all versions.
+6. Write to `Website/vpm/index.html`.
+
+The script is fully runnable locally with `node scripts/build.mjs` — no Docker, no .NET SDK, no NuGet, no Nuke.
+
+### Template substitution
+
+We use plain string replacement, not a templating library. The script generates `{{PACKAGE_ROWS}}` by mapping over packages → versions and emitting a hand-written HTML string per row. This is intentional — for ~10 substitution points and one loop, a templating library is overkill.
+
+### GitHub Actions workflow (`.github/workflows/deploy.yml`)
+
+Triggers: push to `main`, `workflow_dispatch`.
 
 Steps:
+1. `actions/checkout@v4`.
+2. `actions/setup-node@v4` with Node 20.
+3. `node scripts/build.mjs` — generates `Website/vpm/{vpm.json, index.json, index.html}`.
+4. `actions/configure-pages@v5`.
+5. `actions/upload-pages-artifact@v3` with `path: Website`.
+6. `actions/deploy-pages@v4`.
 
-1. **Checkout** this repo.
-2. **Checkout** `vrchat-community/package-list-action` into `./ci`.
-3. **Restore cache** for `ci/.nuke/temp` and `~/.nuget/packages` (mirrors template).
-4. **Generate manifest** — run the Nuke task with `--list-publish-directory` pointing to a staging directory `./vpm-build/`. After this step, `vpm-build/index.json` exists.
-5. **Stage manifest into public/** — copy `vpm-build/index.json` to **both** `public/vpm/vpm.json` and `public/vpm/index.json`. Two filenames, identical content:
-   - `vpm.json` preserves the legacy subscriber URL.
-   - `index.json` matches the template's convention for any new subscriber who copies an `index.json`-style URL.
-6. **Setup Node**, `npm ci`, `npm run build` — webpack produces `build/` containing the React app plus the manifest JSON (`CopyWebpackPlugin` already copies `public/`).
-7. **Setup Pages**, **Upload artifact** (`build/`), **Deploy to Pages**.
+No caching needed — the build is sub-30-seconds.
 
-### Files changed
+### Files removed from the repo
 
-| Action | Path | Notes |
-|---|---|---|
-| Add | `source.json` | Input listing, hand-edited |
-| Add | `.github/workflows/deploy.yml` | The pipeline above |
-| Remove from git | `public/vpm/vpm.json` | Now a build artifact |
-| Update | `.gitignore` | Add `public/vpm/vpm.json`, `public/vpm/index.json`, `vpm-build/`, `ci/` |
-| Update | `package.json` | Keep `deploy` script as a documented local fallback (see below) |
-| Update | `CLAUDE.md` | Replace "edit `public/vpm/vpm.json`" instructions with "edit `source.json`" |
-| Update | `README.md` | Currently empty; add minimal "how to release" note |
+The entire React/webpack stack:
 
-Nothing in `src/` changes.
+- `src/` (all files)
+- `public/` (contents reorganized into `Website/`; CNAME moves to top-level)
+- `package.json`, `package-lock.json`, `node_modules/`
+- `tsconfig.json`, `.babelrc`, `webpack.config.ts`
+- `build/`
 
-### Local fallback (kept, not removed)
+### Files added
 
-The existing `npm run deploy` script (`gh-pages -d build`) is kept as an emergency manual deploy path, but it now requires the developer to first generate the manifest. Documented in README. v1 doesn't provide a local manifest generator — if someone needs to deploy manually before the CI is set up, they can paste output from a CI run.
+- `source.json`
+- `scripts/build.mjs`
+- `templates/listing.html`
+- `Website/index.html`
+- `Website/styles.css`
+- `Website/background.png` (moved from `src/background.png`)
+- `Website/vpm/bg2.png` (moved from `src/bg2.png`)
+- `.github/workflows/deploy.yml`
 
-### Manual one-time setup (cannot be automated)
+### Files modified
 
-Repo → Settings → Pages → **Source: GitHub Actions** (currently "Deploy from a branch: gh-pages"). After this change, the `gh-pages` branch is no longer used. This is a UI-only change the repo owner does once. The spec calls it out; implementation plan must include a checklist item.
+- `CLAUDE.md` — replace "edit `public/vpm/vpm.json`" with "edit `source.json`"; document the new flow.
+- `README.md` — currently a single character; add a short "how to release" note.
+- `.gitignore` — drop Node-related entries, add `Website/vpm/index.html`, `Website/vpm/vpm.json`, `Website/vpm/index.json`.
 
-### Release workflow (after adoption)
+### Manual one-time step
+
+**Switch GitHub Pages source.** Repo → Settings → Pages → Source: change from "Deploy from a branch (`gh-pages`)" to "**GitHub Actions**". After this switch, the `gh-pages` branch is no longer used and can be deleted. This is a UI-only change the repo owner does once. The implementation plan must include it as a checklist item.
+
+## Release workflow (after adoption)
 
 1. Cut a GitHub Release on the package source repo (e.g. `puetsua/VRCButtonWizard`) with a `*.zip` asset containing a valid `package.json`.
 2. In this repo, append one URL to the matching `packages[*].releases` array in `source.json`.
 3. Commit and push to `main`.
-4. CI runs, regenerates the manifest, deploys to Pages.
+4. CI runs `build.mjs`, regenerates manifest and listing HTML, deploys to Pages.
 
 ## Risks
 
 ### Embedded `package.json` must be complete
 
-The action reads `displayName`, `description`, `dependencies`, `vpmDependencies` from the **`package.json` embedded inside each release zip**. The existing manifest has all those fields populated, which means the zip already contains them — every VPM-compliant package must. If the first CI run produces a thinner manifest than today's hand-written one, the fix is on the package source side (add fields to its `package.json`), not in this repo.
+`build.mjs` reads `displayName`, `description`, `dependencies`, `vpmDependencies` from each release zip's embedded `package.json`. The existing hand-written manifest has all those fields populated, which means the zip already contains them — every VPM-compliant package must. If the first CI run produces a thinner manifest than today's, the fix is on the package source side, not in this repo.
 
 ### URL stability
 
-The plan double-writes `vpm.json` and `index.json` to defend against URL drift. If the `url` field inside `source.json` is ever changed away from `https://vrchat.puetsua.net/vpm/vpm.json`, every existing VCC subscriber breaks silently. The spec marks this as a hard constraint.
+Double-writing `vpm.json` and `index.json` defends against URL drift. The `url` field inside `source.json` must stay at `https://vrchat.puetsua.net/vpm/vpm.json` — flagged as a hard constraint.
 
-### Pages source switch
+### Cutover risk
 
-Switching from `gh-pages` branch deployment to Actions deployment is irreversible without a UI toggle. If the Action fails on first run, the site continues serving the last `gh-pages` branch state — there is no broken-site risk during transition, but the first CI run must succeed before the manual Pages-source switch is flipped.
+This is a full rewrite of the deployed site, not an incremental change. During the first CI run, the deployed site flips from React/`gh-pages` output to the new static HTML/`actions/deploy-pages` output. Mitigation:
+
+- The current site keeps serving from the `gh-pages` branch until the manual Pages-source toggle is flipped. Test the first Action run with the toggle still on `gh-pages` (the deploy step will succeed but won't take effect publicly), inspect the artifact, then flip the toggle.
+
+### `unzip` availability
+
+`ubuntu-latest` GitHub runners ship with `unzip` preinstalled. If we ever switch to a different runner image (e.g. `ubuntu-minimal`), `unzip` may need installing. Not a concern today.
 
 ## Validation
 
-After implementation, verify by:
+After implementation, verify:
 
-1. Pushing the new workflow and confirming the Action run completes green.
-2. Inspecting the deployed `https://vrchat.puetsua.net/vpm/vpm.json` — content must match (or improve on) the current hand-written manifest. Key invariants: same `name`, `id`, `url`, same package versions, no missing `dependencies`/`vpmDependencies` entries.
-3. Opening `https://vrchat.puetsua.net/` and `https://vrchat.puetsua.net/vpm/` in a browser — React pages render unchanged.
-4. Adding the repo to VCC fresh: the "Add to VCC" deep-link button must still resolve correctly.
+1. The Action run completes green.
+2. `https://vrchat.puetsua.net/vpm/vpm.json` content matches (or improves on) the current hand-written manifest. Invariants: same `name`, `id`, `url`, same package versions, no missing `dependencies`/`vpmDependencies` entries.
+3. `https://vrchat.puetsua.net/` renders the portal with both buttons.
+4. `https://vrchat.puetsua.net/vpm/` renders the Fluent UI listing in purple theme, shows the buttonwizard package and its versions, and the "Add to VCC" button generates a `vcc://...` URL pointing at `vpm.json`.
+5. Adding the repo to VCC fresh: the "Add to VCC" deep-link button must still resolve correctly.
