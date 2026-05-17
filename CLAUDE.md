@@ -23,9 +23,20 @@ The VPM manifest at `/vpm/vpm.json` (and the duplicate at `/vpm/index.json`) is 
 
 ## Publishing a new package version
 
-1. Cut a GitHub Release on the package source repo (e.g. `puetsua/VRCButtonWizard`) with a `*.zip` asset containing a valid `package.json`.
-2. Append the release URL to the matching `packages[*].releases` array in `source.json`.
+Two paths — pick one:
+
+**Automated (preferred)** — the package's own release workflow fires a `repository_dispatch` to this repo:
+1. Cut a release on the package source repo via its `release.yaml` (e.g. `puetsua/VRCButtonWizard`).
+2. That workflow ends with a `repository_dispatch` of type `add-package-release` carrying `{ packageName, releaseUrl }`. This repo's `deploy.yml` listens for it, runs `scripts/add-release.mjs` to prepend the URL to `source.json`, commits, then runs the existing build & deploy.
+
+**Manual fallback** — if a release was created without the dispatch (e.g. an older package, or the dispatch failed):
+1. Cut a GitHub Release on the package source repo with a `*.zip` asset containing a valid `package.json`.
+2. `node scripts/add-release.mjs <packageName> <releaseUrl>` (or edit `source.json` by hand).
 3. Commit and push to `main`. CI runs `build.mjs` and deploys.
+
+`scripts/add-release.mjs` is idempotent — re-running with an already-listed URL is a no-op.
+
+For the dispatch path to work, the source repo needs a PAT secret (`VPM_LISTING_TOKEN`) with `Contents: write` on this repo, used to POST `/repos/puetsua/vrc-stuff/dispatches`. This repo's `deploy.yml` already has `contents: write` permission so the in-workflow GITHUB_TOKEN can commit `source.json` back to `main`.
 
 ## Important constraints
 

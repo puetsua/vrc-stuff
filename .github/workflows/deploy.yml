@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  repository_dispatch:
+    types: [add-package-release]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -27,6 +29,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Append release URL to source.json
+        if: github.event_name == 'repository_dispatch'
+        env:
+          PACKAGE_NAME: ${{ github.event.client_payload.packageName }}
+          RELEASE_URL: ${{ github.event.client_payload.releaseUrl }}
+        run: node scripts/add-release.mjs "$PACKAGE_NAME" "$RELEASE_URL"
+
+      - name: Commit source.json
+        if: github.event_name == 'repository_dispatch'
+        env:
+          PACKAGE_NAME: ${{ github.event.client_payload.packageName }}
+          RELEASE_URL: ${{ github.event.client_payload.releaseUrl }}
+        run: |
+          if git diff --quiet source.json; then
+            echo "source.json unchanged; nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add source.json
+          git commit -m "Add $PACKAGE_NAME release: $RELEASE_URL"
+          git push
 
       - name: Generate manifest and listing
         run: node scripts/build.mjs
