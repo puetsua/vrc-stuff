@@ -112,10 +112,12 @@ async function main() {
         : '';
       return [
         '      <article class="package-card">',
-        `        <h2>${escapeHtml(latest.displayName || pkg.name)}</h2>`,
+        '        <div class="package-header">',
+        `          <h2>${escapeHtml(latest.displayName || pkg.name)}</h2>`,
+        `          <span class="version-tag">${escapeHtml(latest.version)}</span>`,
+        '        </div>',
         `        <p class="package-id">${escapeHtml(pkg.name)}</p>`,
         `        <p class="package-description">${escapeHtml(latest.description || '')}</p>`,
-        `        <p class="package-version">Latest: <span class="version-tag">${escapeHtml(latest.version)}</span></p>`,
         repoLink,
         '      </article>',
       ]
