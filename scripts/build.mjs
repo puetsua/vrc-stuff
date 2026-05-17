@@ -30,6 +30,17 @@ const escapeHtml = (value) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]),
   );
 
+const compareVersionsDesc = (a, b) => {
+  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (pb[i] || 0) - (pa[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+};
+
 async function fetchZipToTemp(url) {
   const resp = await fetch(url);
   if (!resp.ok) {
@@ -66,6 +77,9 @@ async function main() {
       console.log(`  fetching ${releaseUrl}`);
       const zipPath = await fetchZipToTemp(releaseUrl);
       const pkgJson = extractPackageJson(zipPath);
+      if (!pkgJson.version) {
+        throw new Error(`package.json in ${releaseUrl} is missing required "version" field`);
+      }
       manifest.packages[pkg.name].versions[pkgJson.version] = {
         ...pkgJson,
         url: releaseUrl,
@@ -83,7 +97,7 @@ async function main() {
   const packageRows = source.packages
     .map((pkg) => {
       const versions = Object.values(manifest.packages[pkg.name].versions);
-      versions.sort((a, b) => (a.version < b.version ? 1 : -1));
+      versions.sort((a, b) => compareVersionsDesc(a.version, b.version));
       const latest = versions[0];
       const versionRows = versions
         .map(
