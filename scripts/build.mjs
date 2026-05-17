@@ -41,6 +41,13 @@ const compareVersionsDesc = (a, b) => {
   return 0;
 };
 
+const githubRepoUrl = (releaseUrl) => {
+  const m = String(releaseUrl).match(
+    /^(https:\/\/github\.com\/[^/]+\/[^/]+)\/releases\/download\//,
+  );
+  return m ? m[1] : null;
+};
+
 async function fetchZipToTemp(url) {
   const resp = await fetch(url);
   if (!resp.ok) {
@@ -99,22 +106,26 @@ async function main() {
       const versions = Object.values(manifest.packages[pkg.name].versions);
       versions.sort((a, b) => compareVersionsDesc(a.version, b.version));
       const latest = versions[0];
-      const versionRows = versions
-        .map(
-          (v) =>
-            `        <div class="version-row"><span class="version-tag">${escapeHtml(v.version)}</span><a class="version-link" href="${escapeHtml(v.url)}">Download</a></div>`,
-        )
-        .join('\n');
+      const repoUrl = githubRepoUrl(pkg.releases[0]);
+      const versionPills = versions
+        .map((v) => `<span class="version-tag">${escapeHtml(v.version)}</span>`)
+        .join('\n          ');
+      const repoLink = repoUrl
+        ? `        <a class="package-repo-link" href="${escapeHtml(repoUrl)}" rel="noopener noreferrer" target="_blank">View on GitHub &rarr;</a>`
+        : '';
       return [
         '      <article class="package-card">',
         `        <h2>${escapeHtml(latest.displayName || pkg.name)}</h2>`,
         `        <p class="package-id">${escapeHtml(pkg.name)}</p>`,
         `        <p class="package-description">${escapeHtml(latest.description || '')}</p>`,
         '        <div class="version-list">',
-        versionRows,
+        `          ${versionPills}`,
         '        </div>',
+        repoLink,
         '      </article>',
-      ].join('\n');
+      ]
+        .filter((line) => line !== '')
+        .join('\n');
     })
     .join('\n');
 

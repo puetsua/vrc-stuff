@@ -5,7 +5,7 @@
   --accent-active: #553C9A;
   --bg: #000;
   --text: #fff;
-  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.85);
   --overlay: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
 }
 
@@ -138,11 +138,13 @@ html, body {
 }
 
 .package-card {
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.5rem;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .package-card h2 {
@@ -163,32 +165,31 @@ html, body {
 
 .version-list {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 0.75rem;
-}
-
-.version-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.25rem 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem 0;
 }
 
 .version-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.25rem;
   font-family: monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
-.version-link {
+.package-repo-link {
+  display: inline-block;
   color: var(--accent);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.version-link:hover { text-decoration: underline; }
+.package-repo-link:hover { text-decoration: underline; }
 
 footer {
   margin-top: 2rem;
