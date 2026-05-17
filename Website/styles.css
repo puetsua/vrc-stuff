@@ -6,7 +6,7 @@
   --bg: #000;
   --text: #fff;
   --text-muted: rgba(255, 255, 255, 0.85);
-  --overlay: linear-gradient(to right, rgba(66, 57, 57, 0.6), rgba(0,0,0,0.4));
+  --overlay: linear-gradient(to right, rgba(48, 7, 71, 0.6), rgba(30, 7, 51, 0));
 }
 
 * { box-sizing: border-box; }
@@ -88,6 +88,12 @@ html, body {
 }
 
 /* ─── Listing page (Website/vpm/) ─────────────────────────────── */
+
+.listing-overlay {
+  align-items: flex-start;
+  padding: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.6));
+}
 
 .listing-header {
   width: 100%;

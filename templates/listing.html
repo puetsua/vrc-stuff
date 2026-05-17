@@ -6,19 +6,10 @@
   <title>{{LISTING_NAME}}</title>
   <link rel="stylesheet" href="../styles.css" />
   <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
-  <style>
-    /* Listing-specific overrides: keep page-overlay shape from portal,
-       but anchor content to the top and darken the overlay for readability. */
-    .page-overlay {
-      align-items: flex-start;
-      padding: 0;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.6));
-    }
-  </style>
 </head>
 <body>
   <main class="page" style="background-image: url('bg2.png');">
-    <div class="page-overlay">
+    <div class="page-overlay listing-overlay">
       <div class="listing-content">
         <div class="back-row">
           <a class="btn btn-icon" href="../" aria-label="Back to portal">&larr;</a>
