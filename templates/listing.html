@@ -7,35 +7,38 @@
   <link rel="stylesheet" href="../styles.css" />
   <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
   <style>
-    /* Page-specific overrides for the listing background */
-    body { background-image: url('bg2.png'); background-size: cover; background-position: center center; }
-    body::before {
-      content: "";
-      position: fixed; inset: 0;
+    /* Listing-specific overrides: keep page-overlay shape from portal,
+       but anchor content to the top and darken the overlay for readability. */
+    .page-overlay {
+      align-items: flex-start;
+      padding: 0;
       background: rgba(0, 0, 0, 0.7);
-      z-index: -1;
     }
   </style>
 </head>
 <body>
-  <div class="listing-content">
-    <div class="back-row">
-      <a class="btn btn-icon" href="../" aria-label="Back to portal">&larr;</a>
-    </div>
-    <header class="listing-header">
-      <h1>{{LISTING_NAME}}</h1>
-      <p>{{LISTING_DESCRIPTION}}</p>
-      <div class="add-vcc-row">
-        <a class="btn" href="vcc://vpm/addRepo?url={{LISTING_URL}}">Add to VCC</a>
-        <input class="vpm-url" type="text" readonly value="{{LISTING_URL}}" onclick="this.select()" />
+  <main class="page" style="background-image: url('bg2.png');">
+    <div class="page-overlay">
+      <div class="listing-content">
+        <div class="back-row">
+          <a class="btn btn-icon" href="../" aria-label="Back to portal">&larr;</a>
+        </div>
+        <header class="listing-header">
+          <h1>{{LISTING_NAME}}</h1>
+          <p>{{LISTING_DESCRIPTION}}</p>
+          <div class="add-vcc-row">
+            <a class="btn" href="vcc://vpm/addRepo?url={{LISTING_URL}}">Add to VCC</a>
+            <input class="vpm-url" type="text" readonly value="{{LISTING_URL}}" onclick="this.select()" />
+          </div>
+        </header>
+        <main>
+          {{PACKAGE_ROWS}}
+        </main>
+        <footer>
+          Maintained by <a href="{{AUTHOR_URL}}" rel="noopener noreferrer" target="_blank">{{AUTHOR_NAME}}</a>.
+        </footer>
       </div>
-    </header>
-    <main>
-      {{PACKAGE_ROWS}}
-    </main>
-    <footer>
-      Maintained by <a href="{{AUTHOR_URL}}" rel="noopener noreferrer" target="_blank">{{AUTHOR_NAME}}</a>.
-    </footer>
-  </div>
+    </div>
+  </main>
 </body>
 </html>
