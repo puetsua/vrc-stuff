@@ -4,39 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project purpose
 
-Static landing site for `vrchat.puetsua.net` that also hosts a VPM (VRChat Package Manager) repository. The VPM repo is consumed by VCC (VRChat Creator Companion) to distribute Unity packages (e.g. `vrchat.puetsuaworkshop.buttonwizard`).
+Static site at `vrchat.puetsua.net` that hosts a VPM (VRChat Package Manager) repository. The VPM manifest is consumed by VCC (VRChat Creator Companion) to distribute Unity packages (e.g. `vrchat.puetsuaworkshop.buttonwizard`).
+
+## How it's built
+
+This is a pure static site — no frontend framework, no bundler. Two pages:
+
+- `/` — handwritten portal at `Website/index.html` with two links (Booth and VPM).
+- `/vpm/` — listing page generated at CI time from `templates/listing.html`.
+
+The VPM manifest at `/vpm/vpm.json` (and the duplicate at `/vpm/index.json`) is generated at CI time from `source.json` by `scripts/build.mjs`. The script reads each release URL listed in `source.json`, downloads the zip, extracts the embedded `package.json`, and assembles the manifest. No metadata is hand-maintained.
 
 ## Commands
 
-- `npm start` — webpack-dev-server on port 3000 (development build, auto-opens browser).
-- `npm run build` — production build to `build/`.
-- `npm run deploy` — publishes `build/` to GitHub Pages via the `gh-pages` branch.
+- `node scripts/build.mjs` — regenerate `Website/vpm/{vpm.json, index.json, index.html}` from `source.json`. Requires Node 20+ and `unzip` on PATH (Git Bash works on Windows).
+- Open `Website/index.html` directly in a browser to preview the portal.
+- There's no dev server — CI does the build; locally just run the script and open the file.
 
-No test runner is wired up; Jest/testing-library packages are present but there are no test files or `test` script.
+## Publishing a new package version
 
-## Architecture
+1. Cut a GitHub Release on the package source repo (e.g. `puetsua/VRCButtonWizard`) with a `*.zip` asset containing a valid `package.json`.
+2. Append the release URL to the matching `packages[*].releases` array in `source.json`.
+3. Commit and push to `main`. CI runs `build.mjs` and deploys.
 
-Two independent React 18 SPAs share one webpack config (`webpack.config.ts`):
+## Important constraints
 
-- `src/index.tsx` → emitted as `index.js` / `index.html` (landing page at `/`).
-- `src/vpm.tsx` → emitted as `vpm.js` / `vpm/index.html` (the "Add to VCC" page at `/vpm`).
-
-Each entry calls `ReactDOM.createRoot` directly — there is no router and no shared App component. New pages are added by registering another webpack entry + matching `HtmlWebpackPlugin` instance, not by adding a route.
-
-`CopyWebpackPlugin` copies everything under `public/` into `build/` verbatim. This is how the VPM manifest is served:
-
-- `public/vpm/vpm.json` → `https://vrchat.puetsua.net/vpm/vpm.json`
-
-The "Add to VCC" button on `/vpm` builds a `vcc://vpm/addRepo?url=...` deep link from `document.baseURI` so the same code works in dev and prod.
-
-### Updating the VPM repository
-
-To publish a new package or version, edit `public/vpm/vpm.json` — add an entry under `packages.<id>.versions.<version>` with `version`, `name`, `displayName`, `description`, `dependencies`, `vpmDependencies`, and `url` (a GitHub Releases zip). The schema must match what VCC expects; existing entries are the reference. After editing, `npm run build && npm run deploy`.
-
-### Styling
-
-Chakra UI provides all components and theming; Framer Motion (`m.div`) wraps elements for fade-in animation. There is no CSS file — all styling is inline via Chakra props.
+- `source.json` → `url` field MUST stay `https://vrchat.puetsua.net/vpm/vpm.json`. That string is what existing VCC subscribers have stored. Changing it invalidates every subscription.
+- `build.mjs` writes the manifest to BOTH `vpm.json` and `index.json`. Don't drop the `vpm.json` write — it's the legacy URL.
 
 ## Deployment
 
-GitHub Pages, served from the `gh-pages` branch. `CNAME` files at the repo root and in `public/` both pin the custom domain (the one in `public/` is what actually ends up in `build/`).
+GitHub Actions → GitHub Pages via `actions/deploy-pages`. The deploy workflow is at `.github/workflows/deploy.yml`. Triggered on push to `main` and `workflow_dispatch`.
+
+For this to work, repo Settings → Pages → Source must be set to "GitHub Actions" (not "Deploy from a branch").
