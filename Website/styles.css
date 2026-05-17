@@ -90,9 +90,9 @@ html, body {
 /* ─── Listing page (Website/vpm/) ─────────────────────────────── */
 
 .listing-overlay {
-  align-items: flex-start;
+  display: block;
   padding: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.6));
+  background: linear-gradient(to right, rgba(48, 7, 71, 0.6), rgba(30, 7, 51, 0));
 }
 
 .listing-header {
