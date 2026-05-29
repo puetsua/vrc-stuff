@@ -30,13 +30,45 @@ const escapeHtml = (value) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]),
   );
 
+// Split "1.2.3-beta.4" into its numeric core ([1,2,3]) and pre-release tag ("beta.4").
+const parseSemver = (v) => {
+  const [core, ...rest] = String(v).split('-');
+  return {
+    nums: core.split('.').map((n) => parseInt(n, 10) || 0),
+    pre: rest.join('-'),
+  };
+};
+
+// Sort descending (newest first). Follows semver precedence: a release ranks
+// above its pre-releases, and pre-release identifiers compare per the spec.
 const compareVersionsDesc = (a, b) => {
-  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
-  const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
-  const len = Math.max(pa.length, pb.length);
+  const va = parseSemver(a);
+  const vb = parseSemver(b);
+  const len = Math.max(va.nums.length, vb.nums.length);
   for (let i = 0; i < len; i++) {
-    const diff = (pb[i] || 0) - (pa[i] || 0);
+    const diff = (vb.nums[i] || 0) - (va.nums[i] || 0);
     if (diff !== 0) return diff;
+  }
+  // Numeric cores are equal; compare pre-release tags.
+  if (va.pre === vb.pre) return 0;
+  if (!va.pre) return -1; // a is a full release, ranks first
+  if (!vb.pre) return 1; // b is a full release, ranks first
+  const pa = va.pre.split('.');
+  const pb = vb.pre.split('.');
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i];
+    const y = pb[i];
+    if (x === y) continue;
+    if (x === undefined) return 1; // a has fewer identifiers → lower precedence
+    if (y === undefined) return -1;
+    const xn = /^\d+$/.test(x);
+    const yn = /^\d+$/.test(y);
+    let cmp;
+    if (xn && yn) cmp = parseInt(x, 10) - parseInt(y, 10);
+    else if (xn) cmp = -1; // numeric identifiers rank below alphanumeric
+    else if (yn) cmp = 1;
+    else cmp = x < y ? -1 : 1;
+    return -cmp; // higher precedence sorts first
   }
   return 0;
 };
