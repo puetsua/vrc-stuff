@@ -32,6 +32,12 @@
         "https://github.com/puetsua/VRCEasyLoco/releases/download/0.2.0/VRCEasyLoco-0.2.0.zip",
         "https://github.com/puetsua/VRCEasyLoco/releases/download/0.1.0/VRCEasyLoco-0.1.0.zip"
       ]
+    },
+    {
+      "name": "vrchat.puetsuaworkshop.vrccameraspot",
+      "releases": [
+        "https://github.com/puetsua/VRCCameraSpot/releases/download/0.1.0/VRCCameraSpot-0.1.0.zip"
+      ]
     }
   ]
 }
