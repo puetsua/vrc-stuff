@@ -34,7 +34,7 @@ Two paths — pick one:
 2. `node scripts/add-release.mjs <packageName> <releaseUrl>` (or edit `source.json` by hand).
 3. Commit and push to `main`. CI runs `build.mjs` and deploys.
 
-`scripts/add-release.mjs` is idempotent — re-running with an already-listed URL is a no-op.
+`scripts/add-release.mjs` is idempotent — re-running with an already-listed URL is a no-op. A package that is not in `source.json` yet is appended automatically on its first release, as long as its name starts with the listing `id` (`vrchat.puetsuaworkshop.`).
 
 For the dispatch path to work, the source repo needs a PAT secret (`VPM_LISTING_TOKEN`) with `Contents: write` on this repo, used to POST `/repos/puetsua/vrc-stuff/dispatches`. This repo's `deploy.yml` already has `contents: write` permission so the in-workflow GITHUB_TOKEN can commit `source.json` back to `main`.
 

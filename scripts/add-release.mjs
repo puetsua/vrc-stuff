@@ -4,7 +4,8 @@
 // Usage: node scripts/add-release.mjs <packageName> <releaseUrl>
 //
 // Idempotent: if the URL is already listed, exits 0 without writing.
-// Exits 1 if the package name is not present in source.json.
+// A package not yet in source.json is appended as a new entry; its name must
+// start with the listing id (e.g. `vrchat.puetsuaworkshop.`).
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -21,10 +22,15 @@ async function main() {
   const raw = await readFile(SOURCE_PATH, 'utf8');
   const source = JSON.parse(raw);
 
-  const pkg = source.packages.find((p) => p.name === packageName);
+  let pkg = source.packages.find((p) => p.name === packageName);
   if (!pkg) {
-    console.error(`Package "${packageName}" not found in source.json`);
-    process.exit(1);
+    if (!packageName.startsWith(`${source.id}.`)) {
+      console.error(`Package "${packageName}" must start with "${source.id}."`);
+      process.exit(1);
+    }
+    pkg = { name: packageName, releases: [] };
+    source.packages.push(pkg);
+    console.log(`New package: ${packageName}`);
   }
 
   if (pkg.releases.includes(releaseUrl)) {
