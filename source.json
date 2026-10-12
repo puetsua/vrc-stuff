@@ -36,6 +36,7 @@
     {
       "name": "vrchat.puetsuaworkshop.vrccameraspot",
       "releases": [
+        "https://github.com/puetsua/VRCCameraSpot/releases/download/0.1.1/VRCCameraSpot-0.1.1.zip",
         "https://github.com/puetsua/VRCCameraSpot/releases/download/0.1.0/VRCCameraSpot-0.1.0.zip"
       ]
     }
